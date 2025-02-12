@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+cam="$1"
+url="$2"
+
+while true; do
+	file="./$cam/$(date '+%Y-%m-%d/%H/%H:%M:%S')-seg-%3d.mkv"
+	dir="$(dirname "$file")"
+	mkdir -p "$dir"
+	ffmpeg -timeout 5 -rtsp_transport tcp -i "$url" -c copy -f segment -segment_time 1:00 -t 3600 "$file"
+done
