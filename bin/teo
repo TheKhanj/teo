@@ -8,6 +8,10 @@ usage() {
 	/usr/lib/teo/bin/cleanup -h
 }
 
+version() {
+	echo 'teo v0.0.1'
+}
+
 subcmd="$1"
 [ -z "$subcmd" ] && {
 	usage
@@ -23,6 +27,10 @@ while true; do
 		;;
 	-h)
 		usage
+		exit 0
+		;;
+	--version)
+		version
 		exit 0
 		;;
 	'') break ;;
