@@ -1,0 +1,94 @@
+.TH TEO 1 "February 2025" "1.0" "Teo CCTV CLI Tool"
+
+.SH NAME
+teo \- A CLI tool for configuring and recording CCTV camera streams.
+
+.SH DESCRIPTION
+.B teo
+is a command-line utility for managing CCTV recordings. Most users only need to configure it once using a JSON configuration file and start the systemd target. However, for those who need more control, direct recording and cleanup commands are available.
+
+.SH COMMANDS
+
+.SS teo configure
+Configure `teo` using a JSON file.
+
+.TP
+.B \-c | --config <file>
+Specify the configuration file.
+
+This command sets up `teo.target`, a systemd service that manages recordings, but does not enable it for auto-start.  
+To manually start or enable it on boot, use:
+
+.nf
+systemctl start teo.target
+systemctl enable --now teo.target
+.fi
+
+A JSON schema is available for autocompletion and validation:  
+https://raw.githubusercontent.com/TheKhanj/teo/refs/heads/master/config.schema.json
+
+.SS teo record
+Manually start recording from a camera stream.  
+This is useful if the usual configuration does not fit specific needs, and you want to handle the recording process directly.
+
+.TP
+.B \-c | --camera <name>
+Name of the camera.
+
+.TP
+.B \-u | --url <stream-url>
+RTSP stream URL, e.g.,  
+rtsp://user:pass@ip:port/path
+
+.TP
+.B \-d | --directory <path>
+Directory where recordings will be saved.
+
+Example:
+.nf
+teo record -c frontGate -u rtsp://user:pass@192.168.1.2:554/stream -d /var/cctv/frontGate
+.fi
+
+.SS teo cleanup
+Clean up old recordings to prevent the storage from filling up.  
+This command is for users who want manual control over cleanup instead of automatic management.
+
+.SH GLOBAL OPTIONS
+
+.TP
+.B \-h | --help
+Show a short usage guide.
+
+.TP
+.B --help
+Display the full manual.
+
+.TP
+.B --version
+Show the current version of `teo`.
+
+.SH EXAMPLES
+
+.TP
+Configure `teo` with a JSON file:
+.nf
+teo configure -c config.json
+.fi
+
+.TP
+Start recording a camera manually:
+.nf
+teo record -c cam1 -u rtsp://example.com/stream -d /var/cctv/cam1
+.fi
+
+.TP
+Enable and start systemd target:
+.nf
+systemctl enable --now teo.target
+.fi
+
+.TP
+Run cleanup manually:
+.nf
+teo cleanup
+.fi
