@@ -16,7 +16,6 @@ parsed="$(getopt -o 'hd:c:u:' --long 'record-dir:,camera:,url:' -- "$@")"
 
 eval set -- "$parsed"
 
-echo "$@"
 while true; do
 	case "$1" in
 	-h)
