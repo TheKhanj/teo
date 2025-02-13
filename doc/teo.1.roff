@@ -7,6 +7,8 @@ teo \- A CLI tool for configuring and recording CCTV camera streams.
 .B teo
 is a command-line utility for managing CCTV recordings. Most users only need to configure it once using a JSON configuration file and start the systemd target. However, for those who need more control, direct recording and cleanup commands are available.
 
+teo is named after my beloved dog Teo 🐶🤍
+
 .SH COMMANDS
 
 .SS teo configure
@@ -24,7 +26,7 @@ systemctl start teo.target
 systemctl enable --now teo.target
 .fi
 
-In addition to `teo.target`, there are `teo-record-{camera-name}.service` units for each configured camera. `teo.target` depends on these services and starts them when it starts up. Users can also manually control individual camera recording services if needed:
+In addition to `teo.target`, there are `teo-record-{cam-name}.service` units for each configured camera. `teo.target` depends on these services and starts them when it starts up. Users can also manually control individual camera recording services if needed:
 
 .nf
 systemctl start teo-record-cam1.service
