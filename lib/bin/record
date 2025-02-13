@@ -1,9 +1,9 @@
 #!/usr/bin/env sh
 
-echo "$@"
-# TODO: improve usage message
 usage() {
-	echo "teo record usage:"
+	echo 'Record:'
+	echo '	teo record -c {cam-name} -u {stream-url} -d {record-dir}'
+	echo '	teo record -h'
 }
 
 parsed="$(getopt -o 'hd:c:u:' --long 'record-dir:,camera:,url:' -- "$@")"

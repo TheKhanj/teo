@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-# TODO: add usage message
 usage() {
-	echo "teo configure usage:"
+	echo 'Configure:'
+	echo '	teo configure -c {config.json}'
+	echo '	teo configure -h'
 }
 
 parsed="$(getopt -o 'hc:' --long 'config:' -- "$@")"

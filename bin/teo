@@ -2,7 +2,9 @@
 
 usage() {
 	/usr/lib/teo/bin/configure -h
+	echo ''
 	/usr/lib/teo/bin/record -h
+	echo ''
 	/usr/lib/teo/bin/cleanup -h
 }
 
