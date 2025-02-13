@@ -18,7 +18,7 @@ Teo can be built and installed using:
 
     make && sudo make install
 
-Teo requires `jq` to be installed for parsing JSON configurations.
+Teo requires `jq` and `ffmpeg` to be installed for parsing JSON configurations and recording videos.
 
 ## Getting Started
 
