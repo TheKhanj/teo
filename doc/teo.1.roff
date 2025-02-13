@@ -16,7 +16,7 @@ Configure `teo` using a JSON file.
 .B \-c | --config <file>
 Specify the configuration file.
 
-This command sets up `teo.target`, a systemd service that manages recordings, but does not enable it for auto-start.  
+This command sets up `teo.target`, a systemd service that manages recordings, but does not enable it for auto-start.
 To manually start or enable it on boot, use:
 
 .nf
@@ -24,11 +24,11 @@ systemctl start teo.target
 systemctl enable --now teo.target
 .fi
 
-A JSON schema is available for autocompletion and validation:  
+A JSON schema is available for autocompletion and validation:
 https://raw.githubusercontent.com/TheKhanj/teo/refs/heads/master/config.schema.json
 
 .SS teo record
-Manually start recording from a camera stream.  
+Manually start recording from a camera stream.
 This is useful if the usual configuration does not fit specific needs, and you want to handle the recording process directly.
 
 .TP
@@ -37,26 +37,62 @@ Name of the camera.
 
 .TP
 .B \-u | --url <stream-url>
-RTSP stream URL, e.g.,  
+RTSP stream URL, e.g.,
 rtsp://user:pass@ip:port/path
 
 .TP
 .B \-d | --directory <path>
 Directory where recordings will be saved.
 
-Example:
+.TP
+.B Recording File Structure
+Recorded video segments are saved in the following structure:
+
 .nf
-teo record -c frontGate -u rtsp://user:pass@192.168.1.2:554/stream -d /var/cctv/frontGate
+{record-directory}/{camera-name}/YYYY-MM-DD/HH/HH:MM:SS-seg-NNN.mkv
 .fi
 
+.IP \(bu 2
+Each recording hour is split into \fB5-minute segments\fP.
+.IP \(bu 2
+The first segment of an hour is numbered `000`, the second is `001`, and so on.
+.IP \(bu 2
+After recording for \fB1 hour\fP, the process moves to a new folder corresponding to the next hour and starts segment numbering again from `000`.
+
+Example:
+If the time is \fB13:23\fP, when `teo record` starts with the required parameters, it creates:
+
+.nf
+{record-directory}/{camera-name}/YYYY-MM-DD/13/13:23:00-seg-000.mkv
+.fi
+
+It continues recording 5-minute segments:
+
+.nf
+{record-directory}/{camera-name}/YYYY-MM-DD/13/13:28:00-seg-001.mkv
+{record-directory}/{camera-name}/YYYY-MM-DD/13/13:33:00-seg-002.mkv
+...
+.fi
+
+After \fBone hour (14:23)\fP, it moves to the next directory and starts fresh:
+
+.nf
+{record-directory}/{camera-name}/YYYY-MM-DD/14/14:23:00-seg-000.mkv
+.fi
+
+This process continues indefinitely.
+
 .SS teo cleanup
-Clean up old recordings to prevent the storage from filling up.  
-This command is for users who want manual control over cleanup instead of automatic management.
+Clean up old recordings to prevent the storage from filling up.
+
+.TP
+.B Note:
+This feature is \fBnot yet implemented\fP.
 
 .SH GLOBAL OPTIONS
 
 .TP
-.B \-h | --help
+.B \-h
 Show a short usage guide.
 
 .TP
