@@ -14,7 +14,8 @@ $(MAN_GZ_FILES): $(MAN_FILES)
 
 install: install_lib install_bin install_doc
 
-install_lib: @echo "Installing libraries to $(INSTALL_LIB_DIR)"
+install_lib:
+	@echo "Installing libraries to $(INSTALL_LIB_DIR)"
 	mkdir -p $(INSTALL_LIB_DIR)
 	cp -r lib/* $(INSTALL_LIB_DIR)
 
