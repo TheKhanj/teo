@@ -81,7 +81,9 @@ add_record_service() {
 		Type=simple
 		ExecStart=/usr/bin/teo record -c '$cam' -u '$url' -d '$rdir'
 		Restart=always
-		RestartSec=0s
+		RestartSec=2s
+		StartLimitIntervalSec=0
+		StartLimitBurst=0
 		$(printf "%s\n" "${extra[@]}")
 
 		[Install]
