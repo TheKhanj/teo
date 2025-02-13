@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+usage() {
+	/usr/lib/teo/bin/configure -h
+	/usr/lib/teo/bin/record -h
+	/usr/lib/teo/bin/cleanup -h
+}
+
+subcmd="$1"
+[ -z "$subcmd" ] && {
+	usage
+	exit 0
+}
+
+prev=("$@")
+
+while true; do
+	case "$1" in
+	--help)
+		exec man teo
+		;;
+	-h)
+		usage
+		exit 0
+		;;
+	'') break ;;
+	*)
+		shift
+		;;
+	esac
+done
+
+set -- "${prev[@]}"
+
+case "$subcmd" in
+"configure")
+	/usr/lib/teo/bin/configure "${@:2}"
+	exit $?
+	;;
+"record")
+	/usr/lib/teo/bin/record "${@:2}"
+	exit $?
+	;;
+"cleanup")
+	/usr/lib/teo/bin/cleanup "${@:2}"
+	exit $?
+	;;
+*)
+	usage
+	exit 1
+	;;
+esac

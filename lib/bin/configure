@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+# TODO: add usage message
+usage() {
+	echo "teo configure usage:"
+}
+
+parsed="$(getopt -o 'hc:' --long 'config:' -- "$@")"
+
+[ "$?" -ne 0 ] && {
+	echo 'error parsing options' >&2
+	usage
+	exit 1
+}
+
+eval set -- "$parsed"
+
+while true; do
+	case "$1" in
+	-h)
+		usage
+		exit 0
+		shift
+		;;
+	-c | --config)
+		config="$2"
+		shift 2
+		;;
+	--)
+		shift
+		break
+		;;
+	*)
+		echo "unexpected option: $1" >&2
+		usage
+		exit 1
+		;;
+	esac
+done
+
+[ -z "$config" ] && {
+	echo "error: -c or --config is required" >&2
+	exit 1
+}
+
+[ "$#" -ne 0 ] && {
+	echo "error: invalid argument $1" >&2
+	exit 1
+}
+
+add_record_service() {
+	local rdir="$1"
+	local cam="$2"
+	local url="$3"
+
+	cat >/usr/lib/systemd/system/teo-record-$cam.service <<-EOF
+		[Unit]
+		Description=Teo Record Camera($cam)
+		After=network.target
+		Wants=network.target
+
+		[Service]
+		Type=simple
+		ExecStart=/usr/bin/teo record -c '$cam' -u '$url' -d '$rdir'
+		Restart=always
+		RestartSec=0s
+
+		[Install]
+		RequiredBy=teo.target
+	EOF
+
+	if [ "$?" -ne 0 ]; then
+		echo "failed creating recording service for camera $cam" >&2
+		return 1
+	fi
+}
+
+add_teo_target() {
+	cat >/usr/lib/systemd/system/teo.target <<-EOF
+		[Unit]
+		Description=Teo
+		Requires=${@}
+	EOF
+}
+
+main() {
+	local record_dir="$(cat "$config" | jq -r '.record.dir')"
+
+	local record_services=()
+
+	while read -r cam; do
+		local cc="$(cat "$config" | jq ".cameras.${cam}" -c)"
+		local url="$(echo "$cc" | jq -r '.url')"
+
+		add_record_service $record_dir $cam $url
+
+		if [ "$?" -ne 0 ]; then
+			return 1
+		fi
+
+		record_services+=("teo-record-$cam.service")
+	done < <(cat "$config" | jq -r '.cameras | keys | .[]')
+
+	add_teo_target "${record_services[@]}"
+	systemctl daemon-reload
+}
+
+main

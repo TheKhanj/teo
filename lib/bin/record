@@ -1,0 +1,79 @@
+#!/usr/bin/env sh
+
+echo "$@"
+# TODO: improve usage message
+usage() {
+	echo "teo record usage:"
+}
+
+parsed="$(getopt -o 'hd:c:u:' --long 'record-dir:,camera:,url:' -- "$@")"
+
+[ "$?" -ne 0 ] && {
+	echo 'error parsing options' >&2
+	usage
+	exit 1
+}
+
+eval set -- "$parsed"
+
+echo "$@"
+while true; do
+	case "$1" in
+	-h)
+		usage
+		exit 0
+		shift
+		;;
+	-d | --record-dir)
+		dir="$2"
+		shift 2
+		;;
+	-u | --url)
+		url="$2"
+		shift 2
+		;;
+	-c | --camera)
+		cam="$2"
+		shift 2
+		;;
+	--)
+		shift
+		break
+		;;
+	*)
+		echo "unexpected option: $1" >&2
+		usage
+		exit 1
+		;;
+	esac
+done
+
+[ -z "$cam" ] && {
+	echo 'error: -c or --camera is required' >&2
+	exit 1
+}
+
+[ -z "$url" ] && {
+	echo 'error: -u or --url is required' >&2
+	exit 1
+}
+
+[ -z "$dir" ] && {
+	echo 'error: -d or --record-dir is required' >&2
+	exit 1
+}
+
+[ "$#" -ne 0 ] && {
+	echo "error: invalid argument $1" >&2
+	exit 1
+}
+
+[ -d "$dir" ] || {
+	echo "error: directory $dir does not exist" >&2
+	exit 1
+}
+
+file="$dir/$cam/$(date '+%Y-%m-%d/%H/%H:%M:%S')-seg-%3d.mkv"
+dir="$(dirname "$file")"
+mkdir -p "$dir"
+ffmpeg -timeout 5 -rtsp_transport tcp -i "$url" -c copy -f segment -segment_time 1:00 -t 3600 "$file"
