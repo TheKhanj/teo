@@ -18,6 +18,8 @@ Teo can be built and installed using:
 
     make && sudo make install
 
+Teo requires `jq` to be installed for parsing JSON configurations.
+
 ## Getting Started
 
 After installation, configure Teo with:
