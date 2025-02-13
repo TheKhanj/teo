@@ -24,6 +24,14 @@ systemctl start teo.target
 systemctl enable --now teo.target
 .fi
 
+In addition to `teo.target`, there are `teo-record-{camera-name}.service` units for each configured camera. `teo.target` depends on these services and starts them when it starts up. Users can also manually control individual camera recording services if needed:
+
+.nf
+systemctl start teo-record-cam1.service
+systemctl stop teo-record-cam2.service
+systemctl restart teo-record-cam3.service
+.fi
+
 A JSON schema is available for autocompletion and validation:
 https://raw.githubusercontent.com/TheKhanj/teo/refs/heads/master/config.schema.json
 
@@ -121,6 +129,13 @@ teo record -c cam1 -u rtsp://example.com/stream -d /var/cctv/cam1
 Enable and start systemd target:
 .nf
 systemctl enable --now teo.target
+.fi
+
+.TP
+Manually start or stop a specific camera service:
+.nf
+systemctl start teo-record-cam1.service
+systemctl stop teo-record-cam2.service
 .fi
 
 .TP
