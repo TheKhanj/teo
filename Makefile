@@ -7,6 +7,8 @@ INSTALL_BIN_DIR = /usr/bin
 MAN_FILES = $(wildcard doc/*.roff)
 MAN_GZ_FILES = $(MAN_FILES:%.roff=%.gz)
 
+all: $(MAN_GZ_FILES)
+
 $(MAN_GZ_FILES): $(MAN_FILES)
 	gzip -9 -c $< > $@
 
