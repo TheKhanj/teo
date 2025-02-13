@@ -58,6 +58,17 @@ add_record_service() {
 	local rdir="$1"
 	local cam="$2"
 	local url="$3"
+	local user="$4"
+	local group="$5"
+
+	local extra=()
+
+	if [ -n "$user" ]; then
+		extra+=("User=$user")
+	fi
+	if [ -n "$group" ]; then
+		extra+=("Group=$group")
+	fi
 
 	cat >/usr/lib/systemd/system/teo-record-$cam.service <<-EOF
 		[Unit]
@@ -71,6 +82,7 @@ add_record_service() {
 		ExecStart=/usr/bin/teo record -c '$cam' -u '$url' -d '$rdir'
 		Restart=always
 		RestartSec=0s
+		$(printf "%s\n" "${extra[@]}")
 
 		[Install]
 		WantedBy=teo.target
@@ -98,13 +110,16 @@ install_teo_target() {
 main() {
 	local record_dir="$(cat "$config" | jq -r '.record.dir')"
 
+	local user="$(cat "$config" | jq -r '.user // empty')"
+	local group="$(cat "$config" | jq -r '.group // empty')"
+
 	local record_services=()
 
 	while read -r cam; do
 		local cc="$(cat "$config" | jq ".cameras.${cam}" -c)"
 		local url="$(echo "$cc" | jq -r '.url')"
 
-		add_record_service $record_dir $cam $url
+		add_record_service "$record_dir" "$cam" "$url" "$user" "$group"
 
 		if [ "$?" -ne 0 ]; then
 			return 1

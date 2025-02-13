@@ -2,6 +2,14 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
+    "user": {
+      "type": "string",
+      "default": "root"
+    },
+    "group": {
+      "type": "string",
+      "default": "root"
+    },
     "record": {
       "type": "object",
       "properties": {
