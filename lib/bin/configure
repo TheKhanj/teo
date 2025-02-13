@@ -81,6 +81,9 @@ install_teo_target() {
 		[Unit]
 		Description=Teo
 		Requires=${@}
+
+		[Install]
+		WantedBy=multi-user.target
 	EOF
 
 	echo 'installed /usr/lib/systemd/system/teo.target' >&2
