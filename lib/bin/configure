@@ -76,12 +76,14 @@ add_record_service() {
 	fi
 }
 
-add_teo_target() {
+install_teo_target() {
 	cat >/usr/lib/systemd/system/teo.target <<-EOF
 		[Unit]
 		Description=Teo
 		Requires=${@}
 	EOF
+
+	echo 'installed /usr/lib/systemd/system/teo.target' >&2
 }
 
 main() {
@@ -102,7 +104,7 @@ main() {
 		record_services+=("teo-record-$cam.service")
 	done < <(cat "$config" | jq -r '.cameras | keys | .[]')
 
-	add_teo_target "${record_services[@]}"
+	install_teo_target "${record_services[@]}"
 	systemctl daemon-reload
 }
 
