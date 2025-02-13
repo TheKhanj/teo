@@ -72,7 +72,7 @@ add_record_service() {
 		RestartSec=0s
 
 		[Install]
-		RequiredBy=teo.target
+		WantedBy=teo.target
 	EOF
 
 	if [ "$?" -ne 0 ]; then
@@ -85,7 +85,7 @@ install_teo_target() {
 	cat >/usr/lib/systemd/system/teo.target <<-EOF
 		[Unit]
 		Description=Teo
-		Requires=${@}
+		Wants=${@}
 
 		[Install]
 		WantedBy=multi-user.target
