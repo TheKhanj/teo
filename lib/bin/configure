@@ -64,6 +64,7 @@ add_record_service() {
 		Description=Teo Record Camera($cam)
 		After=network.target
 		Wants=network.target
+		PartOf=teo.target
 
 		[Service]
 		Type=simple
