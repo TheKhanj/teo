@@ -44,6 +44,11 @@ done
 	exit 1
 }
 
+[ -f "$config" ] && {
+	echo "error: file $config does not exist" >&2
+	exit 1
+}
+
 [ "$#" -ne 0 ] && {
 	echo "error: invalid argument $1" >&2
 	exit 1
