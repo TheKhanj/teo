@@ -8,12 +8,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func main() {
-	config, err := parseConfig("./config.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func runHttpServer(config *Config) {
 	router := httprouter.New()
 	api := ApiController{
 		config: config,
@@ -34,8 +29,24 @@ func main() {
 	fullAddress := fmt.Sprintf("%s:%d", address, port)
 	log.Printf("listening on address %s", fullAddress)
 
-	err = http.ListenAndServe(fullAddress, router)
+	err := http.ListenAndServe(fullAddress, router)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func main() {
+	args, err := parseArgs()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	config, err := parseConfig(args.Config)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	runHttpServer(config)
 }
