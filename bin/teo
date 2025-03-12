@@ -5,7 +5,7 @@ usage() {
 	echo ''
 	/usr/lib/teo/bin/record -h
 	echo ''
-	/usr/lib/teo/bin/teod -h
+	/usr/lib/teo/bin/api -h
 	echo ''
 	/usr/lib/teo/bin/cleanup -h
 }
@@ -53,8 +53,8 @@ case "$subcmd" in
 	/usr/lib/teo/bin/record "${@:2}"
 	exit $?
 	;;
-"teod")
-	/usr/lib/teo/bin/teod "${@:2}"
+"api")
+	/usr/lib/teo/bin/api "${@:2}"
 	exit $?
 	;;
 "cleanup")

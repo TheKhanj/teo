@@ -120,20 +120,20 @@ install_teo_target() {
 	echo 'installed /usr/lib/systemd/system/teo.target' >&2
 }
 
-install_teod_service() {
+install_api_service() {
 	local config="$1"
 	local extra="$2"
 
-	cat >/usr/lib/systemd/system/teo-daemon.service <<-EOF
+	cat >/usr/lib/systemd/system/teo-api.service <<-EOF
 		[Unit]
-		Description=Teo Http Daemon
+		Description=Teo Http Api Daemon
 		After=network.target
 		Wants=network.target
 		PartOf=teo.target
 
 		[Service]
 		Type=simple
-		ExecStart=/usr/bin/teo teod -config '$config'
+		ExecStart=/usr/bin/teo api -config '$config'
 		Restart=always
 		RestartSec=2s
 		StartLimitIntervalSec=0
@@ -145,7 +145,7 @@ install_teod_service() {
 	EOF
 
 	if [ "$?" -ne 0 ]; then
-		echo "failed creating teo-daemon.service systemd file" >&2
+		echo "failed creating teo-api.service systemd file" >&2
 		return 1
 	fi
 
@@ -174,7 +174,7 @@ main() {
 		record_services+=("teo-record-$cam.service")
 	done < <(cat "$config" | jq -r '.cameras | keys | .[]')
 
-	install_teod_service "$config" "$extra" || return 1
+	install_api_service "$config" "$extra" || return 1
 	install_teo_target "${record_services[@]}" || return 1
 	systemctl daemon-reload
 }

@@ -17,13 +17,13 @@ func runHttpServer(config *Config) {
 	api.AddRoutes(router)
 
 	port := 8080
-	if config.Http != nil && config.Http.Port != nil {
-		port = *config.Http.Port
+	if config.Api != nil && config.Api.Port != nil {
+		port = *config.Api.Port
 	}
 
 	address := "0.0.0.0"
-	if config.Http != nil && config.Http.Address != nil {
-		address = *config.Http.Address
+	if config.Api != nil && config.Api.Address != nil {
+		address = *config.Api.Address
 	}
 
 	fullAddress := fmt.Sprintf("%s:%d", address, port)

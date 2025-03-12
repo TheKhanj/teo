@@ -16,7 +16,7 @@ type ConfigCamera struct {
 
 type ConfigCameras map[string]ConfigCamera
 
-type ConfigTeod struct {
+type ConfigApi struct {
 	Port    *int    `json:"port"`
 	Address *string `json:"address"`
 }
@@ -24,7 +24,7 @@ type ConfigTeod struct {
 type Config struct {
 	User    *string       `json:"user"`
 	Group   *string       `json:"group"`
-	Teod    *ConfigTeod   `json:"teod"`
+	Api     *ConfigApi    `json:"api"`
 	Record  ConfigRecord  `json:"record"`
 	Cameras ConfigCameras `json:"cameras"`
 }

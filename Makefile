@@ -7,13 +7,13 @@ INSTALL_BIN_DIR = /usr/bin
 MAN_FILES = $(wildcard doc/*.roff)
 MAN_GZ_FILES = $(MAN_FILES:%.roff=%.gz)
 
-TEOD_BIN=./lib/bin/teod
+API_BIN=./lib/bin/api
 GO_FILES = $(wildcard **/*.go)
 
-all: $(MAN_GZ_FILES) $(TEOD_BIN)
+all: $(MAN_GZ_FILES) $(API_BIN)
 
-$(TEOD_BIN): $(GO_FILES)
-	go build -o $(TEOD_BIN)
+$(API_BIN): $(GO_FILES)
+	go build -o $(API_BIN)
 
 $(MAN_GZ_FILES): $(MAN_FILES)
 	gzip -9 -c $< > $@
@@ -39,4 +39,3 @@ doc/%.gz: doc/%.roff $(BUILD_DIR)
 	$(GZIP) -c $< > $@
 
 .PHONY: install install_lib install_bin clean
-

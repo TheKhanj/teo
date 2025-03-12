@@ -6,7 +6,7 @@
       "type": "string",
       "default": "root"
     },
-    "teod": {
+    "api": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
