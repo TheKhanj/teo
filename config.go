@@ -10,20 +10,21 @@ type ConfigRecord struct {
 }
 
 type ConfigCamera struct {
-	Url string `json:"url"`
+	Primary   string  `json:"primary"`
+	Secondary *string `json:"secondary"`
 }
 
 type ConfigCameras map[string]ConfigCamera
 
 type ConfigHttp struct {
-	Port *int `json:"port"`
+	Port    *int    `json:"port"`
 	Address *string `json:"address"`
 }
 
 type Config struct {
-	User    *string        `json:"user"`
-	Group   *string        `json:"group"`
-	Http    *ConfigHttp    `json:"http"`
+	User    *string       `json:"user"`
+	Group   *string       `json:"group"`
+	Http    *ConfigHttp   `json:"http"`
 	Record  ConfigRecord  `json:"record"`
 	Cameras ConfigCameras `json:"cameras"`
 }

@@ -119,7 +119,7 @@ main() {
 
 	while read -r cam; do
 		local cc="$(cat "$config" | jq ".cameras.${cam}" -c)"
-		local url="$(echo "$cc" | jq -r '.url')"
+		local url="$(echo "$cc" | jq -r '.primary')"
 
 		add_record_service "$record_dir" "$cam" "$url" "$user" "$group"
 

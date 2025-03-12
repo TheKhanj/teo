@@ -70,7 +70,7 @@ func (this *ApiController) Live(
 	}
 
 	w.Header().Add("Content-Type", "video/MP2T")
-	err := runFfmpegLiveView(cameraName, cam.Url, w)
+	err := runFfmpegLiveView(cameraName, cam.Primary, w)
 	if err != nil {
 		log.Println(err)
 	}
