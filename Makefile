@@ -7,7 +7,13 @@ INSTALL_BIN_DIR = /usr/bin
 MAN_FILES = $(wildcard doc/*.roff)
 MAN_GZ_FILES = $(MAN_FILES:%.roff=%.gz)
 
-all: $(MAN_GZ_FILES)
+TEOD_BIN=./lib/bin/teod
+GO_FILES = $(wildcard **/*.go)
+
+all: $(MAN_GZ_FILES) $(TEOD_BIN)
+
+$(TEOD_BIN): $(GO_FILES)
+	go build -o $(TEOD_BIN)
 
 $(MAN_GZ_FILES): $(MAN_FILES)
 	gzip -9 -c $< > $@
