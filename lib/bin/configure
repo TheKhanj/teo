@@ -54,12 +54,9 @@ done
 	exit 1
 }
 
-add_record_service() {
-	local rdir="$1"
-	local cam="$2"
-	local url="$3"
-	local user="$4"
-	local group="$5"
+get_extra() {
+	local user="$1"
+	local group="$2"
 
 	local extra=()
 
@@ -69,6 +66,15 @@ add_record_service() {
 	if [ -n "$group" ]; then
 		extra+=("Group=$group")
 	fi
+
+	printf "%s\n" "${extra[@]}"
+}
+
+add_record_service() {
+	local rdir="$1"
+	local cam="$2"
+	local url="$3"
+	local extra="$4"
 
 	cat >/usr/lib/systemd/system/teo-record-$cam.service <<-EOF
 		[Unit]
@@ -84,7 +90,7 @@ add_record_service() {
 		RestartSec=2s
 		StartLimitIntervalSec=0
 		StartLimitBurst=0
-		$(printf "%s\n" "${extra[@]}")
+		$extra
 
 		[Install]
 		WantedBy=teo.target
@@ -106,7 +112,44 @@ install_teo_target() {
 		WantedBy=multi-user.target
 	EOF
 
+	if [ "$?" -ne 0 ]; then
+		echo "failed creating teo.target systemd file" >&2
+		return 1
+	fi
+
 	echo 'installed /usr/lib/systemd/system/teo.target' >&2
+}
+
+install_teod_service() {
+	local config="$1"
+	local extra="$2"
+
+	cat >/usr/lib/systemd/system/teo-daemon.service <<-EOF
+		[Unit]
+		Description=Teo Http Daemon
+		After=network.target
+		Wants=network.target
+		PartOf=teo.target
+
+		[Service]
+		Type=simple
+		ExecStart=/usr/bin/teo teod -config '$config'
+		Restart=always
+		RestartSec=2s
+		StartLimitIntervalSec=0
+		StartLimitBurst=0
+		$extra
+
+		[Install]
+		WantedBy=teo.target
+	EOF
+
+	if [ "$?" -ne 0 ]; then
+		echo "failed creating teo-daemon.service systemd file" >&2
+		return 1
+	fi
+
+	echo 'installed /usr/lib/systemd/system/teo-daemon.service' >&2
 }
 
 main() {
@@ -114,6 +157,7 @@ main() {
 
 	local user="$(cat "$config" | jq -r '.user // empty')"
 	local group="$(cat "$config" | jq -r '.group // empty')"
+	local extra="$(get_extra "$user" "$group")"
 
 	local record_services=()
 
@@ -121,7 +165,7 @@ main() {
 		local cc="$(cat "$config" | jq ".cameras.${cam}" -c)"
 		local url="$(echo "$cc" | jq -r '.primary')"
 
-		add_record_service "$record_dir" "$cam" "$url" "$user" "$group"
+		add_record_service "$record_dir" "$cam" "$url" "$extra"
 
 		if [ "$?" -ne 0 ]; then
 			return 1
@@ -130,7 +174,8 @@ main() {
 		record_services+=("teo-record-$cam.service")
 	done < <(cat "$config" | jq -r '.cameras | keys | .[]')
 
-	install_teo_target "${record_services[@]}"
+	install_teod_service "$config" "$extra" || return 1
+	install_teo_target "${record_services[@]}" || return 1
 	systemctl daemon-reload
 }
 

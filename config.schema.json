@@ -6,7 +6,7 @@
       "type": "string",
       "default": "root"
     },
-    "http": {
+    "teod": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
