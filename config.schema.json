@@ -6,21 +6,36 @@
       "type": "string",
       "default": "root"
     },
+    "http": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "port": {
+          "type": "number",
+          "default": 8080
+        },
+        "address": {
+          "type": "string",
+          "default": "0.0.0.0"
+        }
+      }
+    },
     "group": {
       "type": "string",
       "default": "root"
     },
     "record": {
       "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dir"
+      ],
       "properties": {
         "dir": {
           "type": "string",
           "format": "path"
         }
-      },
-      "required": [
-        "dir"
-      ]
+      }
     },
     "cameras": {
       "type": "object",
