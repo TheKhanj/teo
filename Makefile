@@ -8,7 +8,7 @@ MAN_FILES = $(wildcard doc/*.roff)
 MAN_GZ_FILES = $(MAN_FILES:%.roff=%.gz)
 
 API_BIN=./lib/bin/api
-GO_FILES = $(wildcard **/*.go)
+GO_FILES = $(wildcard *.go)
 
 all: $(MAN_GZ_FILES) $(API_BIN)
 
