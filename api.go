@@ -23,7 +23,7 @@ func runFfmpegLiveView(
 ) error {
 	cmd := exec.Command(
 		"ffmpeg", "-timeout", "5", "-rtsp_transport", "tcp",
-		"-i", url, "-c", "copy", "-f", "mpegts", "-movflags", "+faststart",
+		"-i", url, "-c", "copy", "-f", "mp4", "-movflags", "+faststart+frag_keyframe+empty_moov",
 		"-",
 	)
 
@@ -69,7 +69,7 @@ func (this *ApiController) Live(
 		return
 	}
 
-	w.Header().Add("Content-Type", "video/MP2T")
+	w.Header().Add("Content-Type", "video/mp4")
 	err := runFfmpegLiveView(cameraName, cam.Primary, w)
 	if err != nil {
 		log.Println(err)
