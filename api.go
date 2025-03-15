@@ -15,7 +15,7 @@ type ApiController struct {
 }
 
 func (this *ApiController) AddRoutes(router *httprouter.Router) {
-	router.GET("/api/:camera/live", this.Live)
+	router.GET("/:camera/live", this.Live)
 }
 
 func runFfmpegLiveView(
