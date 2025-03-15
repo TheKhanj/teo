@@ -1,0 +1,8 @@
+{
+  "cssRoots": [
+    "./dist/bootstrap.css"
+  ],
+  "classAttributes": [
+    "class"
+  ]
+}
