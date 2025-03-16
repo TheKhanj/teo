@@ -54,27 +54,12 @@ done
 	exit 1
 }
 
-get_extra() {
-	local user="$1"
-	local group="$2"
-
-	local extra=()
-
-	if [ -n "$user" ]; then
-		extra+=("User=$user")
-	fi
-	if [ -n "$group" ]; then
-		extra+=("Group=$group")
-	fi
-
-	printf "%s\n" "${extra[@]}"
-}
-
 add_record_service() {
 	local rdir="$1"
 	local cam="$2"
 	local url="$3"
-	local extra="$4"
+	local user="$4"
+	local group="$5"
 
 	cat >/usr/lib/systemd/system/teo-record-$cam.service <<-EOF
 		[Unit]
@@ -90,7 +75,8 @@ add_record_service() {
 		RestartSec=2s
 		StartLimitIntervalSec=0
 		StartLimitBurst=0
-		$extra
+		User=$user
+		Group=$user
 
 		[Install]
 		WantedBy=teo.target
@@ -122,7 +108,11 @@ install_teo_target() {
 
 install_api_service() {
 	local config="$1"
-	local extra="$2"
+
+	[ "$(cat "$config" | jq ".api" -r)" = "false" ] && return 0
+
+	local user="$(cat "$config" | jq '.api.user // "root"')"
+	local group="$(cat "$config" | jq '.api.group // "root"')"
 
 	cat >/usr/lib/systemd/system/teo-api.service <<-EOF
 		[Unit]
@@ -138,7 +128,8 @@ install_api_service() {
 		RestartSec=2s
 		StartLimitIntervalSec=0
 		StartLimitBurst=0
-		$extra
+		User=$user
+		Group=$group
 
 		[Install]
 		WantedBy=teo.target
@@ -152,20 +143,23 @@ install_api_service() {
 	echo 'installed /usr/lib/systemd/system/teo-daemon.service' >&2
 }
 
-main() {
-	local record_dir="$(cat "$config" | jq -r '.record.dir')"
+install_record_services() {
+	local config="$1"
 
-	local user="$(cat "$config" | jq -r '.user // empty')"
-	local group="$(cat "$config" | jq -r '.group // empty')"
-	local extra="$(get_extra "$user" "$group")"
+	[ "$(cat "$config" | jq -r ".record")" = "false" ] && return 0
+
+	local user="$(cat "$config" | jq '.record.user // "root"')"
+	local group="$(cat "$config" | jq '.record.group // "root"')"
 
 	local record_services=()
+
+	local record_dir="$(cat "$config" | jq -r '.record.dir')"
 
 	while read -r cam; do
 		local cc="$(cat "$config" | jq ".cameras.${cam}" -c)"
 		local url="$(echo "$cc" | jq -r '.primary')"
 
-		add_record_service "$record_dir" "$cam" "$url" "$extra"
+		add_record_service "$record_dir" "$cam" "$url" "$user" "$group"
 
 		if [ "$?" -ne 0 ]; then
 			return 1
@@ -174,8 +168,26 @@ main() {
 		record_services+=("teo-record-$cam.service")
 	done < <(cat "$config" | jq -r '.cameras | keys | .[]')
 
-	install_api_service "$config" "$extra" || return 1
-	install_teo_target "${record_services[@]}" || return 1
+	echo "${record_services[@]}"
+}
+
+main() {
+	local new_config="/etc/teo/config.json"
+	mkdir -p "$(dirname "$new_config")"
+	cp "$config" "$new_config"
+	config="$new_config"
+
+
+	local user="$(cat "$config" | jq -r '.user // empty')"
+	local group="$(cat "$config" | jq -r '.group // empty')"
+
+	local services=($(install_record_services "$config"))
+	[ "$?" -ne 0 ] && return 1
+
+	services+=$(install_api_service "$config")
+	[ "$?" -ne 0 ] && return 1
+	install_teo_target ${services[@]} || return 1
+
 	systemctl daemon-reload
 }
 

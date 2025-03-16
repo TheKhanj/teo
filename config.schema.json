@@ -7,10 +7,6 @@
   ],
   "additionalProperties": true,
   "properties": {
-    "user": {
-      "type": "string",
-      "default": "root"
-    },
     "users": {
       "type": "object",
       "default": {},
@@ -39,7 +35,16 @@
         {
           "type": "object",
           "additionalProperties": false,
+          "required": [],
           "properties": {
+            "user": {
+              "type": "string",
+              "default": "root"
+            },
+            "group": {
+              "type": "string",
+              "default": "root"
+            },
             "port": {
               "type": "integer",
               "default": 8080
@@ -49,35 +54,69 @@
       ]
     },
     "api": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "port": {
-          "type": "number",
-          "default": 8081
+      "default": false,
+      "oneOf": [
+        {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
         },
-        "address": {
-          "type": "string",
-          "default": "0.0.0.0"
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "user": {
+              "type": "string",
+              "default": "root"
+            },
+            "group": {
+              "type": "string",
+              "default": "root"
+            },
+            "port": {
+              "type": "number",
+              "default": 8081
+            },
+            "address": {
+              "type": "string",
+              "default": "0.0.0.0"
+            }
+          }
         }
-      }
-    },
-    "group": {
-      "type": "string",
-      "default": "root"
+      ]
     },
     "record": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "dir"
-      ],
-      "properties": {
-        "dir": {
-          "type": "string",
-          "format": "path"
+      "default": false,
+      "oneOf": [
+        {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dir"
+          ],
+          "properties": {
+            "user": {
+              "type": "string",
+              "default": "root"
+            },
+            "group": {
+              "type": "string",
+              "default": "root"
+            },
+            "dir": {
+              "type": "string",
+              "format": "path"
+            }
+          }
         }
-      }
+      ]
     },
     "cameras": {
       "type": "object",
