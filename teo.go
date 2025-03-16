@@ -16,7 +16,7 @@ func runHttpServer(config *Config) {
 
 	api.AddRoutes(router)
 
-	port := 8080
+	port := 8081
 	if config.Api != nil && config.Api.Port != nil {
 		port = *config.Api.Port
 	}

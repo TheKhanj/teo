@@ -1,10 +1,52 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
+  "required": [
+    "cameras",
+    "record"
+  ],
+  "additionalProperties": true,
   "properties": {
     "user": {
       "type": "string",
       "default": "root"
+    },
+    "users": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "sha256 hash of the password of the user"
+          }
+        }
+      }
+    },
+    "web": {
+      "default": false,
+      "oneOf": [
+        {
+          "type": "boolean",
+          "enum": [
+            false
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "port": {
+              "type": "integer",
+              "default": 8080
+            }
+          }
+        }
+      ]
     },
     "api": {
       "type": "object",
@@ -12,7 +54,7 @@
       "properties": {
         "port": {
           "type": "number",
-          "default": 8080
+          "default": 8081
         },
         "address": {
           "type": "string",
@@ -57,10 +99,5 @@
         "additionalProperties": false
       }
     }
-  },
-  "required": [
-    "cameras",
-    "record"
-  ],
-  "additionalProperties": true
+  }
 }
