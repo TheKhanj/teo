@@ -61,7 +61,9 @@ add_record_service() {
 	local user="$4"
 	local group="$5"
 
-	cat >/usr/lib/systemd/system/teo-record-$cam.service <<-EOF
+	local service_name="teo-record-$cam.service"
+
+	cat >/usr/lib/systemd/system/$service_name <<-EOF
 		[Unit]
 		Description=Teo Record Camera($cam)
 		After=network.target
@@ -76,20 +78,24 @@ add_record_service() {
 		StartLimitIntervalSec=0
 		StartLimitBurst=0
 		User=$user
-		Group=$user
+		Group=$group
 
 		[Install]
 		WantedBy=teo.target
 	EOF
 
 	if [ "$?" -ne 0 ]; then
-		echo "failed creating recording service for camera $cam" >&2
+		echo "failed installing $service_name" >&2
 		return 1
 	fi
+
+	echo "installed $service_name" >&2
 }
 
 install_teo_target() {
-	cat >/usr/lib/systemd/system/teo.target <<-EOF
+	local target_name="teo.target"
+
+	cat >/usr/lib/systemd/system/$target_name <<-EOF
 		[Unit]
 		Description=Teo
 		Wants=${@}
@@ -99,11 +105,11 @@ install_teo_target() {
 	EOF
 
 	if [ "$?" -ne 0 ]; then
-		echo "failed creating teo.target systemd file" >&2
+		echo "failed installing $target_name" >&2
 		return 1
 	fi
 
-	echo 'installed /usr/lib/systemd/system/teo.target' >&2
+	echo "installed $target_name" >&2
 }
 
 install_api_service() {
@@ -111,10 +117,12 @@ install_api_service() {
 
 	[ "$(cat "$config" | jq ".api" -r)" = "false" ] && return 0
 
-	local user="$(cat "$config" | jq '.api.user // "root"')"
-	local group="$(cat "$config" | jq '.api.group // "root"')"
+	local user="$(cat "$config" | jq '.api.user // "root"' -r)"
+	local group="$(cat "$config" | jq '.api.group // "root"' -r)"
 
-	cat >/usr/lib/systemd/system/teo-api.service <<-EOF
+	local service_name="teo-api.service"
+
+	cat >/usr/lib/systemd/system/$service_name <<-EOF
 		[Unit]
 		Description=Teo Http Api Daemon
 		After=network.target
@@ -136,11 +144,13 @@ install_api_service() {
 	EOF
 
 	if [ "$?" -ne 0 ]; then
-		echo "failed creating teo-api.service systemd file" >&2
+		echo "failed installing $service_name" >&2
 		return 1
 	fi
 
-	echo 'installed /usr/lib/systemd/system/teo-daemon.service' >&2
+	echo "installed $service_name" >&2
+
+	echo "$service_name"
 }
 
 install_record_services() {
@@ -148,12 +158,16 @@ install_record_services() {
 
 	[ "$(cat "$config" | jq -r ".record")" = "false" ] && return 0
 
-	local user="$(cat "$config" | jq '.record.user // "root"')"
-	local group="$(cat "$config" | jq '.record.group // "root"')"
+	local user="$(cat "$config" | jq '.record.user // "root"' -r)"
+	local group="$(cat "$config" | jq '.record.group // "root"' -r)"
 
 	local record_services=()
 
 	local record_dir="$(cat "$config" | jq -r '.record.dir')"
+	[ -d "$record_dir" ] || {
+		echo "directory $record_dir does not exist" >&2
+		return 1
+	}
 
 	while read -r cam; do
 		local cc="$(cat "$config" | jq ".cameras.${cam}" -c)"
@@ -168,24 +182,29 @@ install_record_services() {
 		record_services+=("teo-record-$cam.service")
 	done < <(cat "$config" | jq -r '.cameras | keys | .[]')
 
+	echo "installed recording services" >&2
 	echo "${record_services[@]}"
 }
 
 main() {
 	local new_config="/etc/teo/config.json"
-	mkdir -p "$(dirname "$new_config")"
-	cp "$config" "$new_config"
+	mkdir -p "$(dirname "$new_config")" &&
+		cp "$config" "$new_config" ||
+		return 1
 	config="$new_config"
 
+	local services=()
 
-	local user="$(cat "$config" | jq -r '.user // empty')"
-	local group="$(cat "$config" | jq -r '.group // empty')"
-
-	local services=($(install_record_services "$config"))
+	local record_services
+	record_services=$(install_record_services "$config")
 	[ "$?" -ne 0 ] && return 1
+	services+=($record_services)
 
-	services+=$(install_api_service "$config")
+	local api_service
+	api_service=$(install_api_service "$config")
 	[ "$?" -ne 0 ] && return 1
+	services+=($api_service)
+
 	install_teo_target ${services[@]} || return 1
 
 	systemctl daemon-reload

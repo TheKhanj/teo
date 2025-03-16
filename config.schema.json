@@ -18,7 +18,7 @@
         "properties": {
           "password": {
             "type": "string",
-            "description": "sha256 hash of the password of the user"
+            "description": "SHA256 hash of the password of the user."
           }
         }
       }
@@ -39,11 +39,13 @@
           "properties": {
             "user": {
               "type": "string",
-              "default": "root"
+              "default": "root",
+              "description": "User which is used to run the web service."
             },
             "group": {
               "type": "string",
-              "default": "root"
+              "default": "root",
+              "description": "Group which is used to run the web service."
             },
             "port": {
               "type": "integer",
@@ -68,11 +70,13 @@
           "properties": {
             "user": {
               "type": "string",
-              "default": "root"
+              "default": "root",
+              "description": "User which is used to run the api service."
             },
             "group": {
               "type": "string",
-              "default": "root"
+              "default": "root",
+              "description": "Group which is used to run the api service."
             },
             "port": {
               "type": "number",
@@ -104,15 +108,18 @@
           "properties": {
             "user": {
               "type": "string",
-              "default": "root"
+              "default": "root",
+              "description": "User which is used to run the recording services."
             },
             "group": {
               "type": "string",
-              "default": "root"
+              "default": "root",
+              "description": "Group which is used to run the recording services."
             },
             "dir": {
               "type": "string",
-              "format": "path"
+              "format": "path",
+              "description": "Directory at which recordings will be saved."
             }
           }
         }
