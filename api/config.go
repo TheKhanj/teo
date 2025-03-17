@@ -5,10 +5,6 @@ import (
 	"os"
 )
 
-type ConfigRecord struct {
-	Dir string `json:"dir"`
-}
-
 type ConfigCamera struct {
 	Primary   string  `json:"primary"`
 	Secondary *string `json:"secondary"`
@@ -22,10 +18,7 @@ type ConfigApi struct {
 }
 
 type Config struct {
-	User    *string       `json:"user"`
-	Group   *string       `json:"group"`
 	Api     *ConfigApi    `json:"api"`
-	Record  ConfigRecord  `json:"record"`
 	Cameras ConfigCameras `json:"cameras"`
 }
 
