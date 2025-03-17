@@ -1,15 +1,8 @@
 {
   "name": "@teo/web",
   "version": "0.0.0",
-  "description": "",
-  "license": "ISC",
+  "license": "GPL-2.0-only",
   "author": "Pooyan Khanjankhani <pooyankhan@gmail.com>",
-  "type": "commonjs",
-  "main": "index.js",
-  "scripts": {
-    "serve": "busybox httpd -p 8080 -f",
-    "build:style": "sass ./bootstrap.scss:dist/bootstrap.css"
-  },
   "devDependencies": {
     "bootstrap": "^5.3.3",
     "sass": "^1.85.1"

@@ -7,18 +7,12 @@ INSTALL_BIN_DIR = /usr/bin
 MAN_FILES = $(wildcard doc/*.roff)
 MAN_GZ_FILES = $(MAN_FILES:%.roff=%.gz)
 
-API_BIN=./lib/bin/api
-GO_FILES = $(wildcard *.go)
-
-all: $(MAN_GZ_FILES) $(API_BIN)
-
-$(API_BIN): $(GO_FILES)
-	go build -o $(API_BIN)
+all: $(MAN_GZ_FILES) api
 
 $(MAN_GZ_FILES): $(MAN_FILES)
 	gzip -9 -c $< > $@
 
-install: install_lib install_bin install_doc
+install: install_lib install_bin install_doc install_web
 
 install_lib:
 	@echo "Installing libraries to $(INSTALL_LIB_DIR)"
@@ -38,4 +32,10 @@ install_doc: $(MAN_GZ_FILES)
 doc/%.gz: doc/%.roff $(BUILD_DIR)
 	$(GZIP) -c $< > $@
 
-.PHONY: install install_lib install_bin clean
+api:
+	$(MAKE) -C api
+
+web:
+	$(MAKE) -C web
+
+.PHONY: install install_lib install_bin clean web api
