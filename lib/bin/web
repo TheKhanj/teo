@@ -1,0 +1,51 @@
+#!/usr/bin/env sh
+
+usage() {
+	echo 'Web:'
+	echo '	teo web -p {port}'
+}
+
+parsed="$(getopt -o 'hp:' --long 'port:' -- "$@")"
+
+[ "$?" -ne 0 ] && {
+	echo 'error parsing options' >&2
+	usage
+	exit 1
+}
+
+eval set -- "$parsed"
+
+while true; do
+	case "$1" in
+	-h)
+		usage
+		exit 0
+		shift
+		;;
+	-p | --port)
+		port="$2"
+		shift 2
+		;;
+	--)
+		shift
+		break
+		;;
+	*)
+		echo "unexpected option: $1" >&2
+		usage
+		exit 1
+		;;
+	esac
+done
+
+[ -z "$port" ] && {
+	echo 'error: -p or --port is required' >&2
+	exit 1
+}
+
+[ "$#" -ne 0 ] && {
+	echo "error: invalid argument $1" >&2
+	exit 1
+}
+
+HTTP_PORT=$port make -C /usr/lib/teo/www serve

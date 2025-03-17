@@ -29,6 +29,9 @@ install_doc: $(MAN_GZ_FILES)
 	install -d /usr/share/man/man1
 	install -m 644 "$<" /usr/share/man/man1
 
+install_web:
+	$(MAKE) -C web install
+
 doc/%.gz: doc/%.roff $(BUILD_DIR)
 	$(GZIP) -c $< > $@
 
@@ -38,4 +41,4 @@ api:
 web:
 	$(MAKE) -C web
 
-.PHONY: install install_lib install_bin clean web api
+.PHONY: install install_lib install_bin install_web clean web api

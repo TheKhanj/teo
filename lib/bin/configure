@@ -186,6 +186,48 @@ install_record_services() {
 	echo "${record_services[@]}"
 }
 
+install_web_service() {
+	local config="$1"
+
+	[ "$(cat "$config" | jq ".web" -r)" = "false" ] && return 0
+
+	local user="$(cat "$config" | jq '.web.user // "root"' -r)"
+	local group="$(cat "$config" | jq '.web.group // "root"' -r)"
+	local port="$(cat "$config" | jq '.web.port // 8080' -r)"
+
+	local service_name="teo-web.service"
+
+	cat >/usr/lib/systemd/system/$service_name <<-EOF
+		[Unit]
+		Description=Teo Web Server
+		After=network.target
+		Wants=network.target
+		PartOf=teo.target
+
+		[Service]
+		Type=simple
+		ExecStart=/usr/bin/teo web -p $port
+		Restart=always
+		RestartSec=2s
+		StartLimitIntervalSec=0
+		StartLimitBurst=0
+		User=$user
+		Group=$group
+
+		[Install]
+		WantedBy=teo.target
+	EOF
+
+	if [ "$?" -ne 0 ]; then
+		echo "failed installing $service_name" >&2
+		return 1
+	fi
+
+	echo "installed $service_name" >&2
+
+	echo "$service_name"
+}
+
 main() {
 	local new_config="/etc/teo/config.json"
 	mkdir -p "$(dirname "$new_config")" &&
@@ -204,6 +246,11 @@ main() {
 	api_service=$(install_api_service "$config")
 	[ "$?" -ne 0 ] && return 1
 	services+=($api_service)
+
+	local web_service
+	web_service=$(install_web_service "$config")
+	[ "$?" -ne 0 ] && return 1
+	services+=($web_service)
 
 	install_teo_target ${services[@]} || return 1
 
