@@ -42,16 +42,16 @@ get_page() {
 		<html lang="en">
 		  $(get_header)
 		  <body>
-		   $(get_dashboard "live" <(get_view_port))
-		   <style>
-		     * {
-		       transition: all 0.2s ease;
-		     }
-		     body {
-		       height: 100vh;
-		       overflow: hidden;
-		     }
-		   </style>
+		    $(get_dashboard "live" <(get_view_port))
+		    <style>
+		      * {
+		        transition: all 0.2s ease;
+		      }
+		      body {
+		        height: 100vh;
+		        overflow: hidden;
+		      }
+		    </style>
 		  </body>
 		</html>
 	EOF
