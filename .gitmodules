@@ -1,0 +1,3 @@
+[submodule "web/packages/uhttpd"]
+	path = web/packages/uhttpd
+	url = https://git.openwrt.org/project/uhttpd.git
