@@ -12,14 +12,19 @@ BUILT_BUNDLER = $(BUNDLER_DIR)/dist/index.js
 BOOTSTRP_FILE = bootstrap.scss
 BUILT_BOOTSTRAP = dist/bootstrap.css
 
+SOURCE_FILES = $(BOOTSTRP_FILE) $(BUNDLER_TS_FILES) $(TS_FILES) $(TSX_FILES)
+
 all: bootstrap js
 
 install: all
 	mkdir $(WWW_DIR) -p
 	cp cgi-bin common dist Makefile $(WWW_DIR) -r
 
-serve:
+serve: all
 	busybox httpd -p $(HTTP_PORT) -f
+
+serve_watch:
+	printf "%s\n" $(SOURCE_FILES) | entr -s -r "$(MAKE) serve"
 
 clean:
 	rm dist $(BUNDLER_DIR/dist) -r
