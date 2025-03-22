@@ -20,5 +20,5 @@ help() {
 }
 
 packages/uhttpd/build/uhttpd -f -p $port -h cdn \
-	-I not-found.html \
+	-I app.html \
 	$(cat $routes | sed -E 's/(.*)/-y \1=\/app.html/')
