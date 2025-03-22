@@ -7,7 +7,7 @@ build({
   entryPoints: ["src/index.tsx"],
   bundle: true,
   sourcemap: true,
-  outfile: "dist/bundle.js",
+  outfile: "cdn/bundle.js",
   plugins: [solidPlugin()],
   define: {
     "process.env.NODE_ENV": JSON.stringify(env),
