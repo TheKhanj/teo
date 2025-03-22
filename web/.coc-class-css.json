@@ -1,6 +1,6 @@
 {
   "cssRoots": [
-    "./dist/bootstrap.css"
+    "./cdn/bootstrap.css"
   ],
   "classAttributes": [
     "class"

@@ -9,25 +9,34 @@ BUNDLER_DIR = bundler
 BUNDLER_TS_FILES = $(BUNDLER_DIR)/index.ts
 BUILT_BUNDLER = $(BUNDLER_DIR)/dist/index.js
 
+CDN_DIR = cdn
+
 BOOTSTRP_FILE = bootstrap.scss
-BUILT_BOOTSTRAP = dist/bootstrap.css
+BUILT_BOOTSTRAP = $(CDN_DIR)/bootstrap.css
 
-SOURCE_FILES = $(BOOTSTRP_FILE) $(BUNDLER_TS_FILES) $(TS_FILES) $(TSX_FILES)
+UHTTPD_PRJ = packages/uhttpd
+UHTTPD_BIN = $(UHTTPD_PRJ)/build/uhttpd
 
-all: bootstrap js
+HTML_FILES = $(wildcard html/*.html)
+CDN_HTML_FILES = $(patsubst html/%, cdn/%, $(HTML_FILES))
+APP_ROUTES = .routes
+
+SOURCE_FILES = $(BOOTSTRP_FILE) $(BUNDLER_TS_FILES) $(TS_FILES) $(TSX_FILES) $(HTML_FILES)
+
+all: bootstrap js uhttpd html routes
 
 install: all
 	mkdir $(WWW_DIR) -p
-	cp cgi-bin common dist Makefile $(WWW_DIR) -r
+	cp $(CDN_DIR) $(APP_ROUTES) Makefile $(WWW_DIR) -r
 
 serve: all
-	busybox httpd -p $(HTTP_PORT) -f
+	./bin/serve $(HTTP_PORT) $(APP_ROUTES)
 
 serve_watch:
 	printf "%s\n" $(SOURCE_FILES) | entr -s -r "$(MAKE) serve"
 
 clean:
-	rm dist $(BUNDLER_DIR/dist) -r
+	rm cdn dist $(BUNDLER_DIR/dist) -r
 
 $(BUILT_BOOTSTRAP): $(BOOTSTRP_FILE)
 	npx sass $(BOOTSTRP_FILE):$(BUILT_BOOTSTRAP)
@@ -38,6 +47,24 @@ $(BUILT_JS): $(TSX_FILES) $(BUILT_BUNDLER)
 $(BUILT_BUNDLER): $(BUNDLER_TS_FILES)
 	npx tsc --project $(BUNDLER_DIR)/tsconfig.json
 
+$(UHTTPD_BIN): $(wildcard $(UHTTPD_PRJ)/*.c) $(wildcard $(UHTTPD_PRJ)/*.h)
+	mkdir -p $(UHTTPD_PRJ)/build
+	cd $(UHTTPD_PRJ)/build && \
+		cmake .. && \
+		$(MAKE)
+
+cdn/%: html/%
+	mkdir -p $(CDN_DIR)
+	cp $< $@
+
+$(APP_ROUTES): src/index.tsx
+	cat src/index.tsx | \
+		grep '<Route' | \
+		grep -oP '(?<=path=")([^"]*)' > $(APP_ROUTES)
+
+routes: $(APP_ROUTES)
+html: $(CDN_HTML_FILES)
+uhttpd: $(UHTTPD_BIN)
 bootstrap: $(BUILT_BOOTSTRAP)
 js: $(BUILT_JS)
 bundler: $(BUILT_BUNDLER)
