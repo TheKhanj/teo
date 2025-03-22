@@ -1,15 +1,21 @@
 import { render } from "solid-js/web";
+import { MetaProvider } from "@solidjs/meta";
 import { Router, Route } from "@solidjs/router";
 
-import { LivePage } from "./pages/live";
-import { LoginPage } from "./pages/login";
+import { ROUTES } from "./routes";
+import { NotFoundPage } from "./pages/error";
 
 function App() {
   return (
-    <Router>
-      <Route path="/login" component={LoginPage}></Route>
-      <Route path="/dashboard" component={LivePage}></Route>
-    </Router>
+    <MetaProvider>
+      <Router>
+        {Object.entries(ROUTES).map(([path, Component]) => (
+          <Route path={path} component={Component} />
+        ))}
+
+        <Route path="/" component={NotFoundPage}></Route>
+      </Router>
+    </MetaProvider>
   );
 }
 
