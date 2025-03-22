@@ -21,7 +21,8 @@ HTML_FILES = $(wildcard html/*.html)
 CDN_HTML_FILES = $(patsubst html/%, cdn/%, $(HTML_FILES))
 APP_ROUTES = .routes
 
-SOURCE_FILES = $(BOOTSTRP_FILE) $(BUNDLER_TS_FILES) $(TS_FILES) $(TSX_FILES) $(HTML_FILES)
+BUILDER_FILES = $(BUNDLER_TS_FILES) bin/serve
+SOURCE_FILES = $(BOOTSTRP_FILE) $(TS_FILES) $(TSX_FILES) $(HTML_FILES)
 
 all: bootstrap js uhttpd html routes
 
@@ -33,7 +34,7 @@ serve: all
 	./bin/serve $(HTTP_PORT) $(APP_ROUTES)
 
 serve_watch:
-	printf "%s\n" $(SOURCE_FILES) | entr -s -r "$(MAKE) serve"
+	printf "%s\n" $(SOURCE_FILES) $(BUILDER_FILES) | entr -s -r "$(MAKE) serve"
 
 clean:
 	rm cdn dist $(BUNDLER_DIR/dist) -r
@@ -57,10 +58,10 @@ cdn/%: html/%
 	mkdir -p $(CDN_DIR)
 	cp $< $@
 
-$(APP_ROUTES): src/index.tsx
-	cat src/index.tsx | \
-		grep '<Route' | \
-		grep -oP '(?<=path=")([^"]*)' > $(APP_ROUTES)
+$(APP_ROUTES): src/routes.ts
+	cat $< | \
+		grep '!route' | \
+		grep -oP '(?<=")([^"]*)(?=")' > $(APP_ROUTES)
 
 routes: $(APP_ROUTES)
 html: $(CDN_HTML_FILES)
