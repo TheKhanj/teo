@@ -1,4 +1,5 @@
 import { Title } from "@solidjs/meta";
+import { A } from "@solidjs/router";
 
 function ErrorPage(title: string, message: string) {
   return (
@@ -10,9 +11,9 @@ function ErrorPage(title: string, message: string) {
       >
         <h1 class="display-1 text-danger">404</h1>
         <p class="lead">{message}</p>
-        <a href="/" class="btn btn-primary">
+        <A href="/" class="btn btn-primary">
           Go Home
-        </a>
+        </A>
       </div>
     </>
   );
