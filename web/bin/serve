@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+port="$1"
+routes="$2"
+
+help() {
+	echo 'serve {http-port} {routes-file}'
+}
+
+[ -z "$port" ] && {
+	echo 'argument port is required' >&2
+	help
+	exit 1
+}
+
+[ -z "$routes" ] && {
+	echo 'argument routes is required' >&2
+	help
+	exit 1
+}
+
+packages/uhttpd/build/uhttpd -f -p $port -h cdn \
+	-I not-found.html \
+	$(cat $routes | sed -E 's/(.*)/-y \1=\/app.html/')
