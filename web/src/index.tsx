@@ -13,7 +13,7 @@ function App() {
           <Route path={path} component={Component} />
         ))}
 
-        <Route path="/" component={NotFoundPage}></Route>
+        <Route path="*" component={NotFoundPage}></Route>
       </Router>
     </MetaProvider>
   );
