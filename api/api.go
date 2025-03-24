@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"io"
 	"log"
 	"net/http"
@@ -19,9 +20,11 @@ func (this *ApiController) AddRoutes(router *httprouter.Router) {
 }
 
 func runFfmpegLiveView(
+	ctx context.Context,
 	cam string, url string, output io.Writer,
 ) error {
-	cmd := exec.Command(
+	cmd := exec.CommandContext(
+		ctx,
 		"ffmpeg", "-timeout", "5", "-rtsp_transport", "tcp",
 		"-i", url, "-c", "copy", "-f", "mp4", "-movflags", "+faststart+frag_keyframe+empty_moov",
 		"-",
@@ -70,7 +73,7 @@ func (this *ApiController) Live(
 	}
 
 	w.Header().Add("Content-Type", "video/mp4")
-	err := runFfmpegLiveView(cameraName, cam.Primary, w)
+	err := runFfmpegLiveView(r.Context(), cameraName, cam.Primary, w)
 	if err != nil {
 		log.Println(err)
 	}
