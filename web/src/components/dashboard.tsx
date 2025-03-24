@@ -36,8 +36,6 @@ export function DashboardComponent(props: {
   sidebar: SideBarProps;
   children: JSX.Element;
 }) {
-  console.log(props);
-
   return (
     <div class="d-flex d-print-table">
       {Sidebar(props.sidebar)}

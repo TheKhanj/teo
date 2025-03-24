@@ -4,18 +4,21 @@ import { Router, Route } from "@solidjs/router";
 
 import { ROUTES } from "./routes";
 import { NotFoundPage } from "./pages/error";
+import { ApiProvider } from "./api";
 
 function App() {
   return (
-    <MetaProvider>
-      <Router>
-        {Object.entries(ROUTES).map(([path, Component]) => (
-          <Route path={path} component={Component} />
-        ))}
+    <ApiProvider>
+      <MetaProvider>
+        <Router>
+          {Object.entries(ROUTES).map(([path, component]) => (
+            <Route path={path} component={component} />
+          ))}
 
-        <Route path="*" component={NotFoundPage}></Route>
-      </Router>
-    </MetaProvider>
+          <Route path="*" component={NotFoundPage}></Route>
+        </Router>
+      </MetaProvider>
+    </ApiProvider>
   );
 }
 
