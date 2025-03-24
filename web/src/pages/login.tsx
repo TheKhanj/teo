@@ -2,8 +2,9 @@ import { Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import { createSignal } from "solid-js";
 
-import { useApi } from "../api";
 import { Route } from "../routes";
+import { useApi } from "../providers/api";
+import { useCameras } from "../providers/cameras";
 
 type Status =
   | {
@@ -41,6 +42,7 @@ export function LoginPage() {
   const [status, setStatus] = createSignal<Status>({ ok: null });
   const api = useApi();
   const nav = useNavigate();
+  const cameras = useCameras();
 
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();

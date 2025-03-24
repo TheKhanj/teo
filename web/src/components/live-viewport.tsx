@@ -1,3 +1,5 @@
+import { useCameras } from "../providers/cameras";
+
 function Camera(props: { name: string }) {
   const url = `http://192.168.40.200:8081/${props.name}/live`;
 
@@ -30,13 +32,15 @@ function Camera(props: { name: string }) {
 }
 
 export function LiveViewport() {
+  const cameras = useCameras();
+
   return (
-    <div class="vh-100 d-flex flex-column overflow-auto bg-body-tertiary">
+    <div class="vh-100 w-100 d-flex flex-column overflow-auto bg-body-tertiary">
       <h4 class="bg-body text-primary border-bottom p-3">Cameras</h4>
       <div class="d-flex flex-wrap p-2 overflow-auto">
-        <Camera name="cam2" />
-        <Camera name="cam3" />
-        <Camera name="cam4" />
+        {cameras.cameras().map((cam) => (
+          <Camera name={cam} />
+        ))}
       </div>
     </div>
   );

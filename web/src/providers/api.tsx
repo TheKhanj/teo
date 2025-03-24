@@ -1,17 +1,24 @@
 import { createContext, FlowProps, useContext } from "solid-js";
 
-import { Oath, To, to } from "./util";
+import { Oath, To, to } from "../util";
+import { sessionGet, sessionSet } from "../session";
 
 export class Api {
+  private readonly headers = new Headers();
+
+  public constructor() {
+    const auth = sessionGet("authorization-header");
+    if (auth) this.headers.set("Authorization", auth);
+  }
+
   public async authLogin(
     username: string,
     password: string,
   ): Oath<Error | null> {
+    const auth = `Basic ${btoa(`${username}:${password}`)}`;
     const [res, err] = await to(
       fetch("/api/auth/login", {
-        headers: new Headers({
-          Authorization: `Basic ${btoa(`${username}:${password}`)}`,
-        }),
+        headers: new Headers({ Authorization: auth }),
       }),
     );
 
@@ -22,11 +29,16 @@ export class Api {
       return new Error(text);
     }
 
+    this.headers.set("Authorization", auth);
+    sessionSet("authorization-header", auth);
+
     return null;
   }
 
   public async cameras(): Oath<To<string[], Error>> {
-    const [res, err] = await to(fetch("/api/cameras"));
+    const [res, err] = await to(
+      fetch("/api/cameras", { headers: this.headers }),
+    );
     if (err !== null) return [null, err];
 
     if (!res.ok) {
