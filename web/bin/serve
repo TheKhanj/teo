@@ -21,5 +21,6 @@ help() {
 
 packages/uhttpd/build/uhttpd -f -p $port -h cdn \
 	-I app.html \
+	-D \
 	-E / \
 	$(cat $routes | sed -E 's/(.*)/-y \1=\/app.html/')
