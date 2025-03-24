@@ -36,7 +36,7 @@ serve: all
 	./bin/serve $(HTTP_PORT) $(APP_ROUTES)
 
 serve_watch:
-	printf "%s\n" $(SOURCE_FILES) $(BUILDER_FILES) | entr -s -r "$(MAKE) serve"
+	printf "%s\n" $(SOURCE_FILES) $(BUILDER_FILES) | entr -s -r -c -c "$(MAKE) serve"
 
 clean: uhttpd_clean
 	rm cdn dist $(BUNDLER_DIR/dist) -r
