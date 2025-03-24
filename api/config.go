@@ -17,9 +17,14 @@ type ConfigApi struct {
 	Address *string `json:"address"`
 }
 
+type User struct {
+	Password string `json:"password"`
+}
+
 type Config struct {
-	Api     *ConfigApi    `json:"api"`
-	Cameras ConfigCameras `json:"cameras"`
+	Api     *ConfigApi       `json:"api"`
+	Users   *map[string]User `json"users"`
+	Cameras ConfigCameras    `json:"cameras"`
 }
 
 func parseConfig(path string) (*Config, error) {

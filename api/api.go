@@ -3,6 +3,9 @@ package main
 import (
 	"bufio"
 	"context"
+	"crypto/sha256"
+	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -16,7 +19,9 @@ type ApiController struct {
 }
 
 func (this *ApiController) AddRoutes(router *httprouter.Router) {
-	router.GET("/:camera/live", this.Live)
+	router.GET("/auth/login", this.auth(this.AuthLogin))
+	router.GET("/cameras/", this.auth(this.Cameras))
+	router.GET("/cameras/:camera/live", this.auth(this.CamerasLive))
 }
 
 func runFfmpegLiveView(
@@ -61,7 +66,49 @@ func runFfmpegLiveView(
 	return cmd.Wait()
 }
 
-func (this *ApiController) Live(
+func (this *ApiController) auth(next httprouter.Handle) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		username, password, ok := r.BasicAuth()
+		passwordHash := fmt.Sprintf("%x", sha256.Sum256([]byte(password)))
+
+		isInvalid := !ok || this.config.Users == nil
+
+		if !isInvalid {
+			_, userExists := (*this.config.Users)[username]
+			isInvalid = isInvalid || !userExists
+		}
+
+		if isInvalid ||
+			(*this.config.Users)[username].Password != passwordHash {
+			w.Header().Set("WWW-Authenticate", `Basic realm="Api"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
+		next(w, r, ps)
+	}
+}
+
+func (this *ApiController) AuthLogin(
+	w http.ResponseWriter, r *http.Request, ps httprouter.Params,
+) {
+	w.WriteHeader(http.StatusOK)
+}
+
+func (this *ApiController) Cameras(
+	w http.ResponseWriter, r *http.Request, ps httprouter.Params,
+) {
+	cameras := make([]string, 0, len(this.config.Cameras))
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	if err := json.NewEncoder(w).Encode(cameras); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (this *ApiController) CamerasLive(
 	w http.ResponseWriter, r *http.Request, ps httprouter.Params,
 ) {
 	cameraName := ps.ByName("camera")
