@@ -80,7 +80,6 @@ func (this *ApiController) auth(next httprouter.Handle) httprouter.Handle {
 
 		if isInvalid ||
 			(*this.config.Users)[username].Password != passwordHash {
-			w.Header().Set("WWW-Authenticate", `Basic realm="Api"`)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
