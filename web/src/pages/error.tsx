@@ -1,5 +1,5 @@
-import { Title } from "@solidjs/meta";
 import { A } from "@solidjs/router";
+import { Title } from "@solidjs/meta";
 
 function ErrorPage(title: string, message: string) {
   return (
@@ -21,7 +21,7 @@ function ErrorPage(title: string, message: string) {
 
 export function NotFoundPage() {
   return ErrorPage(
-    "404 Not Found",
+    "Not Found",
     "Oops! The page you're looking for doesn't exist.",
   );
 }
