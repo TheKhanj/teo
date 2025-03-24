@@ -6,7 +6,7 @@ import { DashboardComponent } from "../../components/dashboard";
 export function LivePage() {
   return (
     <>
-      <Title>Dashboard</Title>
+      <Title>Dashboard - Live</Title>
       <DashboardComponent sidebar={{ active: "live" }}>
         <LiveViewport />
       </DashboardComponent>

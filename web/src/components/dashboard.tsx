@@ -1,3 +1,4 @@
+import { A } from "@solidjs/router";
 import { JSX } from "solid-js";
 
 type SideBarProps = {
@@ -5,19 +6,26 @@ type SideBarProps = {
 };
 
 function Sidebar(props: SideBarProps) {
-  // TODO: fix active element
+  const { active } = props;
+
+  const getClasses = (current: SideBarProps["active"]) => {
+    let c = "nav-item nav-link m-1";
+    if (active === current) c += " active";
+    return c;
+  };
+
   return (
     <div
       class="col-2 vh-100 nav nav-pills p-2 d-flex flex-column bg-body-secondary"
       style="min-width: 200px"
     >
       <h3 class="text-center text-primary py-3">Teo 🐶</h3>
-      <a class="nav-item nav-link m-1 active" href="#">
+      <A class={getClasses("live")} href="/dashboard/live">
         Live
-      </a>
-      <a class="nav-item nav-link m-1" href="#">
+      </A>
+      <A class={getClasses("recordings")} href="/dashboard/recordings">
         Recordings
-      </a>
+      </A>
     </div>
   );
 }
