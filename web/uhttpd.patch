@@ -1,0 +1,27 @@
+diff --git a/.gitignore b/.gitignore
+new file mode 100644
+index 0000000..6d1084f
+--- /dev/null
++++ b/.gitignore
+@@ -0,0 +1,2 @@
++build
++.patched
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 58eb6dd..2a4af54 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -7,10 +7,10 @@ INCLUDE (CheckFunctionExists)
+ SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+ ADD_DEFINITIONS(-D_FILE_OFFSET_BITS=64 -Os -Wall -Werror -Wmissing-declarations --std=gnu99 -g3)
+ 
+-OPTION(TLS_SUPPORT "TLS support" ON)
+-OPTION(LUA_SUPPORT "Lua support" ON)
+-OPTION(UBUS_SUPPORT "ubus support" ON)
+-OPTION(UCODE_SUPPORT "ucode support" ON)
++OPTION(TLS_SUPPORT "TLS support" OFF)
++OPTION(LUA_SUPPORT "Lua support" OFF)
++OPTION(UBUS_SUPPORT "ubus support" OFF)
++OPTION(UCODE_SUPPORT "ucode support" OFF)
+ 
+ IF(APPLE)
+   INCLUDE_DIRECTORIES(/opt/local/include)

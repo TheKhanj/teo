@@ -16,6 +16,8 @@ BUILT_BOOTSTRAP = $(CDN_DIR)/bootstrap.css
 
 UHTTPD_PRJ = packages/uhttpd
 UHTTPD_BIN = $(UHTTPD_PRJ)/build/uhttpd
+UHTTPD_PATCH = uhttpd.patch
+UHTTPD_PATCH_APPLIANCE = packages/uhttpd/.patched
 
 HTML_FILES = $(wildcard html/*.html)
 CDN_HTML_FILES = $(patsubst html/%, cdn/%, $(HTML_FILES))
@@ -36,7 +38,7 @@ serve: all
 serve_watch:
 	printf "%s\n" $(SOURCE_FILES) $(BUILDER_FILES) | entr -s -r "$(MAKE) serve"
 
-clean:
+clean: uhttpd_clean
 	rm cdn dist $(BUNDLER_DIR/dist) -r
 
 $(BUILT_BOOTSTRAP): $(BOOTSTRP_FILE)
@@ -48,7 +50,16 @@ $(BUILT_JS): $(TSX_FILES) $(BUILT_BUNDLER)
 $(BUILT_BUNDLER): $(BUNDLER_TS_FILES)
 	npx tsc --project $(BUNDLER_DIR)/tsconfig.json
 
-$(UHTTPD_BIN): $(wildcard $(UHTTPD_PRJ)/*.c) $(wildcard $(UHTTPD_PRJ)/*.h)
+uhttpd_clean:
+	cd $(UHTTPD_PRJ) && \
+		git reset --hard && \
+		git clean -f
+
+$(UHTTPD_PATCH_APPLIANCE): $(UHTTPD_PATCH)
+	git -C $(UHTTPD_PRJ) apply  $(realpath $(UHTTPD_PATCH)) && \
+		touch $(UHTTPD_PATCH_APPLIANCE)
+
+$(UHTTPD_BIN): $(wildcard $(UHTTPD_PRJ)/*.c) $(wildcard $(UHTTPD_PRJ)/*.h) $(UHTTPD_PATCH_APPLIANCE)
 	mkdir -p $(UHTTPD_PRJ)/build
 	cd $(UHTTPD_PRJ)/build && \
 		cmake .. && \
