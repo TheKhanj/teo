@@ -100,6 +100,10 @@ func (this *ApiController) Cameras(
 ) {
 	cameras := make([]string, 0, len(this.config.Cameras))
 
+	for key := range this.config.Cameras {
+		cameras = append(cameras, key)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
