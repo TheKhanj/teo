@@ -1,15 +1,11 @@
 package main
 
 import (
-	"bufio"
-	"context"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
-	"os/exec"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -23,56 +19,14 @@ func (this *ApiController) AddRoutes(router *httprouter.Router) {
 	router.GET("/cameras/:camera/live", this.auth(this.CamerasLive))
 }
 
-func runFfmpegLiveView(
-	ctx context.Context,
-	cam string, preset ConfigPreset, output io.Writer,
-) error {
-	cmd := exec.CommandContext(
-		ctx,
-		"ffmpeg", "-timeout", "5", "-rtsp_transport", "tcp",
-		"-i", preset.Stream, "-c", "copy", "-f", "mp4", "-movflags", "+faststart+frag_keyframe+empty_moov",
-		"-",
-	)
-
-	log.Printf("starting ffmpeg (%s)", cmd.String())
-
-	stdout, err := cmd.StdoutPipe()
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return err
-	}
-
-	if err = cmd.Start(); err != nil {
-		return err
-	}
-
-	go func() {
-		_, err := io.Copy(output, stdout)
-		if err != nil {
-			log.Printf("%s: %s", cam, err.Error())
-		}
-	}()
-
-	scanner := bufio.NewScanner(stderr)
-
-	go func() {
-		for scanner.Scan() {
-			line := scanner.Text()
-			log.Printf("%s: %s", cam, line)
-		}
-	}()
-
-	return cmd.Wait()
-}
-
 func (this *ApiController) getPreset(
 	camera *ConfigCamera, preset string,
 ) (ConfigPreset, error) {
 	ret := ConfigPreset{}
 
-	if preset == "primary" {
+	if preset == PrimaryStream {
 		ret.Stream = camera.Primary
-	} else if preset == "secondary" {
+	} else if preset == SecondaryStream {
 		ret.Stream = camera.Secondary
 	} else {
 		p, presetExists := (*this.config.Api.Presets)[preset]
@@ -80,6 +34,13 @@ func (this *ApiController) getPreset(
 			return ret, fmt.Errorf("preset %s does not exist", preset)
 		}
 		ret = p
+		if p.Stream == PrimaryStream {
+			ret.Stream = camera.Primary
+		} else if p.Stream == SecondaryStream {
+			ret.Stream = camera.Secondary
+		} else {
+			return ret, fmt.Errorf("stream %s is not valid, valid options are \"primary\" or \"secondary\"", p.Stream)
+		}
 	}
 
 	return ret, nil
@@ -154,8 +115,14 @@ func (this *ApiController) CamerasLive(
 		return
 	}
 
-	w.Header().Add("Content-Type", "video/mp4")
-	err = runFfmpegLiveView(r.Context(), cameraName, p, w)
+	ffmpeg := Ffmpeg{
+		Context:    r.Context(),
+		CameraName:    cameraName,
+		Preset: p,
+		W:      w,
+		Audio:  active,
+	}
+	err = ffmpeg.Live()
 	if err != nil {
 		log.Println(err)
 	}

@@ -5,6 +5,11 @@ import (
 	"os"
 )
 
+const (
+	PrimaryStream   = "primary"
+	SecondaryStream = "secondary"
+)
+
 type ConfigPreset struct {
 	Stream     string   `json:"stream"`
 	Fps        *float32 `json:"fps"`
@@ -61,11 +66,11 @@ func parseConfig(path string) (*Config, error) {
 		config.Api.Address = &defaultAddress
 	}
 	if config.Api.DefaultActiveCameraPreset == nil {
-		defaultActiveCameraPreset := "primary"
+		defaultActiveCameraPreset := PrimaryStream
 		config.Api.DefaultActiveCameraPreset = &defaultActiveCameraPreset
 	}
 	if config.Api.DefaultNonActiveCameraPreset == nil {
-		defaultNonActiveCameraPreset := "primary"
+		defaultNonActiveCameraPreset := PrimaryStream
 		config.Api.DefaultNonActiveCameraPreset = &defaultNonActiveCameraPreset
 	}
 	if config.Api.Presets == nil {
