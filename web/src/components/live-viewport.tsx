@@ -1,4 +1,4 @@
-import { useCameras } from "../providers/cameras";
+import { useAppState } from "../providers/app-state";
 
 function Camera(props: { name: string }) {
   const url = `/api/cameras/${props.name}/live`;
@@ -32,14 +32,14 @@ function Camera(props: { name: string }) {
 }
 
 export function LiveViewport() {
-  const cameras = useCameras();
+  const app = useAppState();
 
   return (
     <div class="vh-100 w-100 d-flex flex-column overflow-auto bg-body-tertiary">
       <h4 class="bg-body text-primary border-bottom p-3">Cameras</h4>
       <div class="d-flex flex-wrap p-2 overflow-auto">
-        {cameras.cameras().map((cam) => (
-          <Camera name={cam} />
+        {Object.keys(app.cameras()).map((cameraName) => (
+          <Camera name={cameraName} />
         ))}
       </div>
     </div>

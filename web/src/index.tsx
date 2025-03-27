@@ -5,12 +5,12 @@ import { Router, Route } from "@solidjs/router";
 import { ROUTES } from "./routes";
 import { ApiProvider } from "./providers/api";
 import { NotFoundPage } from "./pages/error";
-import { CamerasProvider } from "./providers/cameras";
+import { AppStateProvider } from "./providers/app-state";
 
 function App() {
   return (
     <ApiProvider>
-      <CamerasProvider>
+      <AppStateProvider>
         <MetaProvider>
           <Router>
             {Object.entries(ROUTES).map(([path, component]) => (
@@ -20,7 +20,7 @@ function App() {
             <Route path="*" component={NotFoundPage}></Route>
           </Router>
         </MetaProvider>
-      </CamerasProvider>
+      </AppStateProvider>
     </ApiProvider>
   );
 }
