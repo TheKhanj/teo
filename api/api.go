@@ -25,12 +25,12 @@ func (this *ApiController) AddRoutes(router *httprouter.Router) {
 
 func runFfmpegLiveView(
 	ctx context.Context,
-	cam string, url string, output io.Writer,
+	cam string, preset ConfigPreset, output io.Writer,
 ) error {
 	cmd := exec.CommandContext(
 		ctx,
 		"ffmpeg", "-timeout", "5", "-rtsp_transport", "tcp",
-		"-i", url, "-c", "copy", "-f", "mp4", "-movflags", "+faststart+frag_keyframe+empty_moov",
+		"-i", preset.Stream, "-c", "copy", "-f", "mp4", "-movflags", "+faststart+frag_keyframe+empty_moov",
 		"-",
 	)
 
@@ -63,6 +63,26 @@ func runFfmpegLiveView(
 	}()
 
 	return cmd.Wait()
+}
+
+func (this *ApiController) getPreset(
+	camera *ConfigCamera, preset string,
+) (ConfigPreset, error) {
+	ret := ConfigPreset{}
+
+	if preset == "primary" {
+		ret.Stream = camera.Primary
+	} else if preset == "secondary" {
+		ret.Stream = camera.Secondary
+	} else {
+		p, presetExists := (*this.config.Api.Presets)[preset]
+		if !presetExists {
+			return ret, fmt.Errorf("preset %s does not exist", preset)
+		}
+		ret = p
+	}
+
+	return ret, nil
 }
 
 func (this *ApiController) auth(next httprouter.Handle) httprouter.Handle {
@@ -111,13 +131,31 @@ func (this *ApiController) CamerasLive(
 	cameraName := ps.ByName("camera")
 	cam, ok := this.config.Cameras[cameraName]
 
+	qp := r.URL.Query()
+	active := qp.Get("active") == "true"
+	preset := qp.Get("preset")
+	if preset == "" {
+		if active {
+			preset = *this.config.Api.DefaultActiveCameraPreset
+		} else {
+			preset = *this.config.Api.DefaultNonActiveCameraPreset
+		}
+	}
+
 	if !ok {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
+	p, err := this.getPreset(&cam, preset)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
 	w.Header().Add("Content-Type", "video/mp4")
-	err := runFfmpegLiveView(r.Context(), cameraName, cam.Primary, w)
+	err = runFfmpegLiveView(r.Context(), cameraName, p, w)
 	if err != nil {
 		log.Println(err)
 	}

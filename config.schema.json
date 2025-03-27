@@ -85,6 +85,14 @@
             "address": {
               "type": "string",
               "default": "0.0.0.0"
+            },
+            "defaultActiveCameraPreset": {
+              "type": "string",
+              "default": "primary"
+            },
+            "defaultNonActiveCameraPreset": {
+              "type": "string",
+              "default": "primary"
             }
           }
         }
