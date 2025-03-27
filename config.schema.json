@@ -140,7 +140,8 @@
           }
         },
         "required": [
-          "primary"
+          "primary",
+          "secondary"
         ],
         "additionalProperties": false
       }
