@@ -19,7 +19,6 @@ type ApiController struct {
 }
 
 func (this *ApiController) AddRoutes(router *httprouter.Router) {
-	router.GET("/auth/login", this.auth(this.AuthLogin))
 	router.GET("/cameras/", this.auth(this.Cameras))
 	router.GET("/cameras/:camera/live", this.auth(this.CamerasLive))
 }
@@ -87,12 +86,6 @@ func (this *ApiController) auth(next httprouter.Handle) httprouter.Handle {
 
 		next(w, r, ps)
 	}
-}
-
-func (this *ApiController) AuthLogin(
-	w http.ResponseWriter, r *http.Request, ps httprouter.Params,
-) {
-	w.WriteHeader(http.StatusOK)
 }
 
 func (this *ApiController) Cameras(
