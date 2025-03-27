@@ -37,7 +37,7 @@ export class Api {
 
   public async cameras(): Oath<To<string[], Error>> {
     const [res, err] = await to(
-      fetch("/api/cameras", { headers: this.headers }),
+      fetch("/api/cameras/", { headers: this.headers }),
     );
     if (err !== null) return [null, err];
 
