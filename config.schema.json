@@ -93,6 +93,55 @@
             "defaultNonActiveCameraPreset": {
               "type": "string",
               "default": "primary"
+            },
+            "presets": {
+              "type": "object",
+              "default": {},
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "stream"
+                ],
+                "properties": {
+                  "stream": {
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "const": "primary"
+                      },
+                      {
+                        "type": "string",
+                        "const": "secondary"
+                      }
+                    ]
+                  },
+                  "resolution": {
+                    "default": null,
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "examples": [
+                          "1920x1080"
+                        ]
+                      }
+                    ]
+                  },
+                  "fps": {
+                    "default": null,
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ]
+                  }
+                }
+              }
             }
           }
         }
