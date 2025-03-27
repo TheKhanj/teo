@@ -1,7 +1,7 @@
 import { useCameras } from "../providers/cameras";
 
 function Camera(props: { name: string }) {
-  const url = `http://192.168.40.200:8081/${props.name}/live`;
+  const url = `/api/cameras/${props.name}/live`;
 
   return (
     <div class="col-12 col-md-6 p-2">
