@@ -1,0 +1,7 @@
+mpv mpv http://192.168.10.150:4747/video
+ffmpeg -rtsp_transport tcp -i http://192.168.10.150:4747/video -
+ffmpeg -i http://192.168.10.150:4747/video -f matroska - | ffplay -
+
+http-proxy
+ffmpeg-pipe
+ffmpeg-image-stream

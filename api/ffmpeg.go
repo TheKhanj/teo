@@ -1,5 +1,7 @@
 package api
 
+import "net/http/cgi"
+
 type FfmpegBuilder struct{}
 
 func (this *FfmpegBuilder) WithGlobalFlag(
@@ -12,4 +14,9 @@ func (this *FfmpegBuilder) WithGlobalOption(
 ) *FfmpegBuilder {
 }
 
-func (this *FfmpegBuilder) With
+func (this *FfmpegBuilder) With() {}
+
+func foo() {
+	cgi.Handler
+}
+

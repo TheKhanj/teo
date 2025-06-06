@@ -1,0 +1,87 @@
+{
+  "$schema": "./config.schema.json",
+  "users": {
+    "khanj": {
+      "password": "123",
+      "roles": [
+        "admin"
+      ]
+    }
+  },
+  "roles": {
+    "admin": [
+      "!view:garage-live",
+      "!view:garage-recordings",
+      "!view:backyard-live",
+      "!view:backyard-recordings",
+      "!view:pooyan-room-live",
+      "!view:pooyan-room-recordings"
+    ],
+    "view:garage-live": [
+      "view:/cameras/cam2/live",
+      "view:/cameras/cam5/live",
+      "view:/cameras/cam6/live"
+    ],
+    "view:garage-recordings": [
+      "view:/cameras/cam2/recordings",
+      "view:/cameras/cam5/recordings",
+      "view:/cameras/cam6/recordings"
+    ],
+    "view:backyard-live": [
+      "view:/cameras/cam3/live",
+      "view:/cameras/cam4/live"
+    ],
+    "view:backyard-recordings": [
+      "view:/cameras/cam3/recordings",
+      "view:/cameras/cam4/recordings"
+    ],
+    "view:pooyan-room-live": [
+      "view:/cameras/cam1/live"
+    ],
+    "view:pooyan-room-recordings": [
+      "view:/cameras/cam1/recordings"
+    ]
+  },
+  "cameras": {
+    "cam2": {
+      "primary": {
+        "type": "http-proxy",
+        "routes": [
+          {
+            "match": "/",
+            "backend": "http://..."
+          },
+          {
+            "match": "*",
+            "backend": "http://...*"
+          }
+        ]
+      },
+      "secondary": {
+        "type": "http-proxy",
+        "routes": [
+          {
+            "match": "/",
+            "backend": "http://..."
+          },
+          {
+            "match": "*",
+            "backend": "http://...*"
+          }
+        ]
+      },
+      "pipe-test": {
+        "type": "pipe",
+        "contentType": "video/mp4",
+        "builder": {}
+      },
+      "poor": {
+        "type": "ffmpeg-image-stream",
+        "fps": 0,
+        "builder": {}
+      }
+    },
+    "cam3": {},
+    "cam4": {}
+  }
+}

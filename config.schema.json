@@ -1,207 +1,172 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema",
   "type": "object",
-  "required": [
-    "cameras",
-    "record"
-  ],
-  "additionalProperties": true,
   "properties": {
     "users": {
       "type": "object",
-      "default": {},
       "additionalProperties": {
-        "type": "object",
-        "required": [
-          "password"
-        ],
-        "properties": {
-          "password": {
-            "type": "string",
-            "description": "SHA256 hash of the password of the user."
-          }
-        }
+        "$ref": "#definitions/user"
       }
     },
-    "web": {
-      "default": false,
-      "oneOf": [
-        {
-          "type": "boolean",
-          "enum": [
-            false
-          ]
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [],
-          "properties": {
-            "user": {
-              "type": "string",
-              "default": "root",
-              "description": "User which is used to run the web service."
-            },
-            "group": {
-              "type": "string",
-              "default": "root",
-              "description": "Group which is used to run the web service."
-            },
-            "port": {
-              "type": "integer",
-              "default": 8080
-            }
-          }
+    "roles": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/operation"
         }
-      ]
-    },
-    "api": {
-      "default": false,
-      "oneOf": [
-        {
-          "type": "boolean",
-          "enum": [
-            false
-          ]
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "user": {
-              "type": "string",
-              "default": "root",
-              "description": "User which is used to run the api service."
-            },
-            "group": {
-              "type": "string",
-              "default": "root",
-              "description": "Group which is used to run the api service."
-            },
-            "port": {
-              "type": "number",
-              "default": 8081
-            },
-            "address": {
-              "type": "string",
-              "default": "0.0.0.0"
-            },
-            "defaultActiveCameraPreset": {
-              "type": "string",
-              "default": "primary"
-            },
-            "defaultNonActiveCameraPreset": {
-              "type": "string",
-              "default": "primary"
-            },
-            "presets": {
-              "type": "object",
-              "default": {},
-              "additionalProperties": {
-                "type": "object",
-                "required": [
-                  "stream"
-                ],
-                "properties": {
-                  "stream": {
-                    "oneOf": [
-                      {
-                        "type": "string",
-                        "const": "primary"
-                      },
-                      {
-                        "type": "string",
-                        "const": "secondary"
-                      }
-                    ]
-                  },
-                  "resolution": {
-                    "default": null,
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "string",
-                        "examples": [
-                          "1920x1080"
-                        ]
-                      }
-                    ]
-                  },
-                  "fps": {
-                    "default": null,
-                    "oneOf": [
-                      {
-                        "type": "null"
-                      },
-                      {
-                        "type": "number"
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        }
-      ]
-    },
-    "record": {
-      "default": false,
-      "oneOf": [
-        {
-          "type": "boolean",
-          "enum": [
-            false
-          ]
-        },
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "dir"
-          ],
-          "properties": {
-            "user": {
-              "type": "string",
-              "default": "root",
-              "description": "User which is used to run the recording services."
-            },
-            "group": {
-              "type": "string",
-              "default": "root",
-              "description": "Group which is used to run the recording services."
-            },
-            "dir": {
-              "type": "string",
-              "format": "path",
-              "description": "Directory at which recordings will be saved."
-            }
-          }
-        }
-      ]
+      }
     },
     "cameras": {
       "type": "object",
       "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "primary": {
-            "type": "string",
-            "format": "uri"
-          },
-          "secondary": {
-            "type": "string",
-            "format": "uri"
-          }
-        },
-        "required": [
-          "primary",
-          "secondary"
-        ],
-        "additionalProperties": false
+        "$ref": "#definitions/camera"
       }
+    }
+  },
+  "required": [
+    "cameras",
+    "roles",
+    "users"
+  ],
+  "definitions": {
+    "camera-stream:http-proxy": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "http-proxy"
+          ]
+        },
+        "routes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "match": {
+                "type": "string"
+              },
+              "backend": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "match",
+              "backend"
+            ]
+          }
+        }
+      },
+      "required": [
+        "type",
+        "routes"
+      ]
+    },
+    "camera-stream:pipe": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "pipe"
+          ]
+        },
+        "content-type": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string",
+          "examples": []
+        }
+      },
+      "required": [
+        "type",
+        "content-type",
+        "command"
+      ]
+    },
+    "camera": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "description": "CGI handler of the camera",
+        "properties": {
+          "command": {
+            "type": "string",
+            "examples": [
+              "teo cgi -H \"Content-Type: video/mp4\" -- ffmpeg -i rtsp://... -f mp4 -movflags frag_keyframe+empty_moov -"
+            ]
+          },
+          "cwd": {
+            "type": "string",
+            "description": "CGI's executable's working directory"
+          },
+          "env": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Environment variables to set",
+              "examples": [
+                "KEY=VALUE"
+              ]
+            }
+          },
+          "inherit-env": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Environment variables to inherit from host",
+              "examples": [
+                "KEY"
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "command"
+      ]
+    },
+    "operation": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^view:.*",
+          "description": "The definition of the operation consisting of action and resource in the following format:\n\n{action}:{resource}",
+          "examples": [
+            "view:/cameras/cam1/live",
+            "view:/cameras/cam1/recordings",
+            "view:/cameras/cam1/exports"
+          ]
+        },
+        {
+          "type": "string",
+          "pattern": "^!.*",
+          "description": "A reference to an already defined role",
+          "examples": [
+            "!a-role-name"
+          ]
+        }
+      ]
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "password",
+        "roles"
+      ]
     }
   }
 }

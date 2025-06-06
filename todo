@@ -1,0 +1,17 @@
+GET /cameras/cam2/recordings/
+GET /cameras/cam2/recordings/{file-name}
+GET /cameras/cam2/live?preset=primary|secondary|360p
+
+GET /presets
+
+
+teo cgi -H 'header: value' -- ...
+// connect anyway u like, just create images in the process's
+// dir
+teo image-stream "ffmpeg -timeout 5 -i rtsp://stream"
+
+
+
+Content-Type: multipart/x-mixed-replace; boundary=boundarydonotcross
+
+<(images)
